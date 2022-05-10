@@ -1,4 +1,4 @@
-﻿#nullable disable
+#nullable disable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,28 +21,37 @@ namespace AnimeAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Themes
+        // GET: api/Theme
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Theme>>> Gettheme()
+        public async Task<ActionResult<IEnumerable<Theme>>> GetTheme()
         {
             return await _context.theme.ToListAsync();
         }
 
-        // GET: api/Themes/5
+        // GET: api/Theme/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Theme>> GetTheme(int id)
+        public async Task<ActionResult<Response>> GetTheme(int id)
         {
+            var response = new Response();
+            
             var theme = await _context.theme.FindAsync(id);
+
+            response.StatusCode = 200;
+            response.StatusDesc = "Success! Here is the anime you were looking for!";
+            response.theme = theme;
 
             if (theme == null)
             {
-                return NotFound();
+                response.StatusCode = 400;
+                response.StatusDesc = "Invalid anime or does not exist!";
+
+                return response;
             }
 
-            return theme;
+            return response;
         }
 
-        // PUT: api/Themes/5
+        // PUT: api/Theme/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTheme(int id, Theme theme)
@@ -73,31 +82,45 @@ namespace AnimeAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Themes
+        // POST: api/Theme
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Theme>> PostTheme(Theme theme)
+        public async Task<ActionResult<Response>> PostTheme(Theme theme)
         {
+            // Adds an additional anime to the theme  list
+            var response = new Response();
             _context.theme.Add(theme);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTheme", new { id = theme.anime_info_id }, theme);
+            response.StatusCode = 201;
+            response.StatusDesc = "Successfully Added to the List!";
+
+            CreatedAtAction("GetTheme", new { id = theme.anime_info_id }, theme);
+            return response;
         }
 
-        // DELETE: api/Themes/5
+        // DELETE: api/Theme/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTheme(int id)
+        public async Task<Response> DeleteTheme(int id)
         {
             var theme = await _context.theme.FindAsync(id);
+            var response = new Response();
+            //If Successful
+            response.StatusCode = 200;
+            response.StatusDesc = "Successfully Removed!";
+            response.theme = theme;
+
+            //If cannot remove
             if (theme == null)
             {
-                return NotFound();
+                response.StatusCode = 400;
+                response.StatusDesc = "You cannot remove something that doesn't exist!";
+                return response;
             }
 
             _context.theme.Remove(theme);
             await _context.SaveChangesAsync();
-
-            return NoContent();
+            return response;
         }
 
         private bool ThemeExists(int id)
