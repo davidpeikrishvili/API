@@ -1,4 +1,4 @@
-﻿#nullable disable
+#nullable disable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,28 +21,38 @@ namespace AnimeAPI.Controllers
             _context = context;
         }
 
-        // GET: api/infoes
+        // GET: api/info
         [HttpGet]
         public async Task<ActionResult<IEnumerable<info>>> Getinfo()
         {
             return await _context.info.ToListAsync();
         }
 
-        // GET: api/infoes/5
+        // GET: api/info/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<info>> Getinfo(int id)
+        public async Task<ActionResult<Response>> Getinfo(int id)
         {
+            var response = new Response();
             var info = await _context.info.FindAsync(id);
+            var theme = await _context.theme.FindAsync(id);
+
+            response.StatusCode = 200;
+            response.StatusDesc = "Success! Here is the anime you were looking for!";
+            response.info = info;
+            response.theme = theme;
 
             if (info == null)
             {
-                return NotFound();
+                response.StatusCode = 400;
+                response.StatusDesc = "Invalid anime or does not exist!";
+                
+                return response;
             }
 
-            return info;
+            return response;
         }
 
-        // PUT: api/infoes/5
+        // PUT: api/info/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> Putinfo(int id, info info)
@@ -73,31 +83,47 @@ namespace AnimeAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/infoes
+        // POST: api/info
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<info>> Postinfo(info info)
+        public async Task<ActionResult<Response>> Postinfo(info info)
         {
+            // Adds an additional anime to the info list
+            var response = new Response();
             _context.info.Add(info);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("Getinfo", new { id = info.animeId }, info);
+            response.StatusCode = 201;
+            response.StatusDesc = "Successfully Added to the List!";
+            CreatedAtAction("Getinfo", new { id = info.animeId }, info);
+           
+            return response;
         }
 
-        // DELETE: api/infoes/5
+
+
+        // DELETE: api/info/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Deleteinfo(int id)
+        public async Task<Response> Deleteinfo(int id)
         {
+
             var info = await _context.info.FindAsync(id);
+            var response = new Response();
+            //If Successful
+            response.StatusCode = 200;
+            response.StatusDesc = "Successfully Removed!";
+            response.info = info;
+
+            //If cannot remove
             if (info == null)
             {
-                return NotFound();
+                response.StatusCode = 400;
+                response.StatusDesc = "You cannot remove something that doesn't exist!";
+                return response;
             }
 
             _context.info.Remove(info);
             await _context.SaveChangesAsync();
-
-            return NoContent();
+            return response;
         }
 
         private bool infoExists(int id)
