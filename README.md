@@ -8,8 +8,11 @@
 - api/theme/{integer value} = gets specific anime theme corresponding to that integer value. Both should match each other.
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 [HTTP Methods]
-- The three methods that I used for this API were PUT/GET/DELETE
-- All worked as intended. The GET method got the information, the PUT method updated or added additional anime, and DELETE deleted it and returned nothing in the body.
+- The three methods that I used for this API were POST/GET/DELETE
+- All worked as intended. The GET method got the information, the POST adds an anime , and DELETE deleted it and returned nothing in the body.
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 [Files Included]
 - All the VS Studio controllers and Models, and SQL workbench code itself.
+
+[UPDATE]
+-Had some errors after completing but fixed them and added aditional things to the API before presentation.
